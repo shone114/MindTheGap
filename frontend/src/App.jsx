@@ -4,19 +4,20 @@ import { Brain, Clock, Activity } from 'lucide-react';
 import AudioRecorder from './components/AudioRecorder';
 import ChatSession from './components/ChatSession';
 import DiagnosticReport from './components/DiagnosticReport';
+import ConceptMapPage from './components/ConceptMapPage';
 import SessionHistory from './components/SessionHistory';
 import './App.css';
 
 const API_URL = "http://127.0.0.1:8000/api/v1";
 
 function App() {
-  const [appState, setAppState] = useState('landing'); // landing | recording | loading | chatting | RECORDING_ANSWER | LOADING_ANSWER | LOADING_REPORT | report | history
+  const [appState, setAppState] = useState('landing');
   const [sessionId, setSessionId] = useState(null);
   const [topic, setTopic] = useState("");
   const [currentQuestion, setCurrentQuestion] = useState("");
   const [report, setReport] = useState(null);
   const [errorMsg, setErrorMsg] = useState("");
-  const [sessions, setSessions] = useState([]); // session history list
+  const [sessions, setSessions] = useState([]);
 
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
@@ -93,7 +94,6 @@ function App() {
     try {
       const res = await axios.post(`${API_URL}/session/report`, { session_id: sessionId });
       setReport(res.data);
-      // Save to session history
       setSessions(prev => [{
         topic,
         score: res.data.mastery_score,
@@ -117,13 +117,15 @@ function App() {
 
   const isChatActive = ['chatting', 'RECORDING_ANSWER', 'LOADING_ANSWER', 'LOADING_REPORT'].includes(appState);
 
+  // Full-screen states that should have no padding/header clutter
+  const isFullscreen = ['chatting', 'RECORDING_ANSWER', 'LOADING_ANSWER', 'LOADING_REPORT', 'report', 'concept_map', 'history'].includes(appState);
+
   return (
     <div className="app-container">
-      {/* Ambient background blobs */}
       <div className="ambient-blob blob-1" />
       <div className="ambient-blob blob-2" />
 
-      <main className="main-content">
+      <main className={`main-content ${isFullscreen ? 'main-content--fullscreen' : ''}`}>
 
         {/* Header — only on landing */}
         {appState === 'landing' && (
@@ -133,7 +135,6 @@ function App() {
           </header>
         )}
 
-        {/* History button — only on landing */}
         {appState === 'landing' && (
           <button className="history-icon-btn glass-panel" onClick={() => setAppState('history')} title="Session History">
             <Clock size={24} />
@@ -160,7 +161,7 @@ function App() {
             </div>
           )}
 
-          {/* Recording initial explanation */}
+          {/* Recording */}
           {appState === 'recording' && (
             <div className="recording-view animate-slide-up">
               <div className="mic-container">
@@ -183,12 +184,12 @@ function App() {
             </div>
           )}
 
-          {/* Chat session — includes recording / loading answer states */}
+          {/* Chat session */}
           {isChatActive && (
             <div className="chatting-view animate-slide-up">
               <ChatSession
                 topic={topic}
-                currentQuestion={appState === 'LOADING_REPORT' ? '' : currentQuestion}
+                currentQuestion={appState === 'LOADING_REPORT' ? currentQuestion : currentQuestion}
                 appState={appState}
                 onStartAnswer={() => startRecording('RECORDING_ANSWER')}
                 onStopAnswer={() => stopRecording(processAnswer)}
@@ -196,8 +197,9 @@ function App() {
                 onBack={handleReset}
               />
               {appState === 'LOADING_REPORT' && (
-                <div className="loading-view" style={{ position: 'absolute', bottom: '2rem', width: '100%' }}>
+                <div className="report-loading-overlay">
                   <Activity size={32} className="spinner-icon" />
+                  <p>Generating report…</p>
                 </div>
               )}
             </div>
@@ -206,11 +208,20 @@ function App() {
           {/* Report */}
           {appState === 'report' && report && (
             <div className="report-view animate-slide-up">
-              <DiagnosticReport data={report} />
-              <button className="reset-btn glass-panel" onClick={handleReset}>
-                New Session
-              </button>
+              <DiagnosticReport
+                data={report}
+                onHome={handleReset}
+                onViewMap={() => setAppState('concept_map')}
+              />
             </div>
+          )}
+
+          {/* Concept Map full-screen page */}
+          {appState === 'concept_map' && report && (
+            <ConceptMapPage
+              conceptMap={report.concept_map}
+              onBack={() => setAppState('report')}
+            />
           )}
 
           {/* History */}

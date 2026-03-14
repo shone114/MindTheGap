@@ -123,7 +123,7 @@ async def generate_report(request: SessionReportRequest):
     
     return SessionReportResponse(
         mastery_score=report["mastery_score"],
-        weak_concepts=report["weak_concepts"],
-        breakpoints=report["breakpoints"],
+        breakpoint=report.get("breakpoint"),
+        concepts_to_review=report.get("concepts_to_review", []),
         concept_map=report["concept_map"]
     )

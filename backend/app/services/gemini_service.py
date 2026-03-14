@@ -88,18 +88,33 @@ class GeminiService:
         history_text += "\n".join([f"Q: {qa['q']}\nA: {qa['a']}" for qa in qa_history])
         
         prompt = f"""
-        You are a diagnostic learning evaluator. Review this entire conversation where a student explains "{topic}".
-        
+        You are a diagnostic learning evaluator. Review this conversation where a student explains "{topic}".
+
         Conversation:
         {history_text}
-        
-        Provide a final diagnostic report including:
-        1. A mastery score out of 100 based on their demonstrated depth, accuracy, and clarity.
-        2. A list of weak concepts they struggled with.
-        3. A list of exact "breakpoints" where their understanding broke down (e.g. "Started struggling when asked about X").
-        4. A concept map representing the sub-concepts of the topic. Output this as a list of objects, each containing a 'concept' (string) and its 'strength' (string: 'strong' or 'weak').
+
+        Generate a concise diagnostic report with exactly these four fields:
+
+        1. mastery_score: An integer 0-100 reflecting conceptual depth, accuracy, and clarity.
+
+        2. breakpoint: Identify the SINGLE most significant moment where understanding broke down.
+           - concept: short name of the concept they failed on
+           - trigger_question: the exact question that exposed the gap
+           - user_answer: a short quote or paraphrase of their failing answer
+           - diagnosis: one sentence explaining what was wrong or missing
+           If the session was flawless, return null for breakpoint.
+
+        3. concepts_to_review: A short list of concept labels (strings only, no explanations) the student should revisit.
+
+        4. concept_map: A mind map of the topic's conceptual structure.
+           - root: the topic name string
+           - nodes: list of sub-concepts, each with id (snake_case), label (readable), and strength ("strong"/"weak"/"partial")
+           - edges: directed connections using node IDs (or root string for root-level edges)
+           Keep the map to 5-8 nodes maximum.
+
+        Be concise. No long paragraphs anywhere.
         """
-        
+
         response = self.client.models.generate_content(
             model=settings.LLM_MODEL,
             contents=prompt,
@@ -109,7 +124,7 @@ class GeminiService:
                 temperature=0.2
             ),
         )
-        
+
         return json.loads(response.text)
 
 gemini_service = GeminiService()
