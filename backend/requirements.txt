@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+pydantic
+pydantic-settings
+python-dotenv
+httpx
+google-genai
+google-cloud-speech
+python-multipart
