@@ -1,0 +1,99 @@
+.install-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(189, 224, 254, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 300;
+  padding: 1rem;
+  animation: fadeIn 0.25s ease;
+}
+
+.install-card {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  padding: 2rem 1.75rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.65rem;
+  border-radius: 28px !important;
+  background: rgba(255, 200, 221, 0.75) !important;
+  animation: slideUpSheet 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.install-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(0,0,0,0.06);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+}
+
+.install-icon { font-size: 3rem; line-height: 1; }
+
+.install-title {
+  font-size: 1.25rem;
+  font-family: var(--font-display);
+  font-weight: 800;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.install-desc {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  text-align: center;
+  line-height: 1.55;
+  max-width: 280px;
+}
+
+.install-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.85rem 2rem;
+  background: var(--color-accent);
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 99px;
+  border: none;
+  box-shadow: 0 4px 16px rgba(255, 175, 204, 0.4);
+  margin-top: 0.5rem;
+  width: 100%;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.install-btn:hover {
+  background: var(--color-highlight);
+  box-shadow: 0 4px 20px rgba(205, 180, 219, 0.45);
+}
+
+.install-skip {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUpSheet {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

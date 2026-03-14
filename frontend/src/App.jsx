@@ -1,11 +1,13 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { Brain, Clock, Activity } from 'lucide-react';
+import { Brain, Clock, Activity, WifiOff } from 'lucide-react';
 import AudioRecorder from './components/AudioRecorder';
 import ChatSession from './components/ChatSession';
 import DiagnosticReport from './components/DiagnosticReport';
 import ConceptMapPage from './components/ConceptMapPage';
 import SessionHistory from './components/SessionHistory';
+import InstallPrompt from './components/InstallPrompt';
+import { saveSession, loadSessions } from './utils/db';
 import './App.css';
 
 const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api/v1";
@@ -19,9 +21,62 @@ function App() {
   const [errorMsg, setErrorMsg] = useState("");
   const [sessions, setSessions] = useState([]);
 
+  // PWA state
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+  const deferredInstallEvent = useRef(null);
+
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
 
+  // ── PWA: capture beforeinstallprompt ──────────────────────────────────
+  useEffect(() => {
+    const handler = (e) => {
+      e.preventDefault();
+      deferredInstallEvent.current = e;
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  // ── PWA: online/offline tracking ──────────────────────────────────────
+  useEffect(() => {
+    const goOnline  = () => setIsOnline(true);
+    const goOffline = () => setIsOnline(false);
+    window.addEventListener('online', goOnline);
+    window.addEventListener('offline', goOffline);
+    return () => {
+      window.removeEventListener('online', goOnline);
+      window.removeEventListener('offline', goOffline);
+    };
+  }, []);
+
+  // ── Load sessions from IndexedDB on mount ─────────────────────────────
+  useEffect(() => {
+    loadSessions().then(stored => {
+      if (stored.length) setSessions(stored);
+    });
+  }, []);
+
+  // ── Show install prompt once after first report ───────────────────────
+  const maybeShowInstall = useCallback(() => {
+    const alreadyShown = localStorage.getItem('pwa_prompt_shown');
+    if (!alreadyShown && deferredInstallEvent.current) {
+      setShowInstallPrompt(true);
+      localStorage.setItem('pwa_prompt_shown', 'true');
+    }
+  }, []);
+
+  const handleInstall = async () => {
+    setShowInstallPrompt(false);
+    if (deferredInstallEvent.current) {
+      deferredInstallEvent.current.prompt();
+      await deferredInstallEvent.current.userChoice;
+      deferredInstallEvent.current = null;
+    }
+  };
+
+  // ── Recording helpers ─────────────────────────────────────────────────
   const startRecording = async (nextState) => {
     setErrorMsg("");
     try {
@@ -33,7 +88,7 @@ function App() {
       };
       mediaRecorderRef.current.start();
       setAppState(nextState);
-    } catch (err) {
+    } catch {
       setErrorMsg("Microphone access denied or unavailable.");
     }
   };
@@ -49,6 +104,7 @@ function App() {
     }
   };
 
+  // ── Session flow ──────────────────────────────────────────────────────
   const processInitial = async (audioBlob) => {
     setAppState('loading');
     try {
@@ -93,13 +149,30 @@ function App() {
     setErrorMsg("");
     try {
       const res = await axios.post(`${API_URL}/session/report`, { session_id: sessionId });
-      setReport(res.data);
-      setSessions(prev => [{
+      const reportData = res.data;
+      setReport(reportData);
+
+      // Build session record with full report for offline access
+      const sessionRecord = {
+        session_id: sessionId || crypto.randomUUID(),
+        timestamp: new Date().toISOString(),
         topic,
-        score: res.data.mastery_score,
-        date: new Date().toLocaleTimeString(),
-      }, ...prev]);
+        mastery_score: reportData.mastery_score,
+        breakpoint: reportData.breakpoint,
+        concepts_to_review: reportData.concepts_to_review,
+        concept_map: reportData.concept_map,
+      };
+
+      // Persist to IndexedDB
+      await saveSession(sessionRecord);
+
+      // Update in-memory list
+      setSessions(prev => [sessionRecord, ...prev]);
+
       setAppState('report');
+
+      // Show install prompt after first completed session
+      setTimeout(maybeShowInstall, 1500);
     } catch (err) {
       setErrorMsg(err.response?.data?.detail || "Failed to generate report.");
       setAppState('chatting');
@@ -116,8 +189,6 @@ function App() {
   };
 
   const isChatActive = ['chatting', 'RECORDING_ANSWER', 'LOADING_ANSWER', 'LOADING_REPORT'].includes(appState);
-
-  // Full-screen states that should have no padding/header clutter
   const isFullscreen = ['chatting', 'RECORDING_ANSWER', 'LOADING_ANSWER', 'LOADING_REPORT', 'report', 'concept_map', 'history'].includes(appState);
 
   return (
@@ -125,9 +196,15 @@ function App() {
       <div className="ambient-blob blob-1" />
       <div className="ambient-blob blob-2" />
 
+      {/* Offline indicator */}
+      {!isOnline && (
+        <div className="offline-chip">
+          <WifiOff size={13} /> Offline Mode
+        </div>
+      )}
+
       <main className={`main-content ${isFullscreen ? 'main-content--fullscreen' : ''}`}>
 
-        {/* Header — only on landing */}
         {appState === 'landing' && (
           <header className="app-header">
             <Brain size={32} className="logo-icon" />
@@ -151,11 +228,7 @@ function App() {
               <h2 className="title">Explain a concept.</h2>
               <p className="subtitle">Speak freely. Uncover the gaps in your understanding.</p>
               <div className="mic-container">
-                <AudioRecorder
-                  isRecording={false}
-                  onStart={() => startRecording('recording')}
-                  onStop={() => {}}
-                />
+                <AudioRecorder isRecording={false} onStart={() => startRecording('recording')} onStop={() => {}} />
                 <p className="mic-hint">Tap to begin your explanation</p>
               </div>
             </div>
@@ -165,17 +238,13 @@ function App() {
           {appState === 'recording' && (
             <div className="recording-view animate-slide-up">
               <div className="mic-container">
-                <AudioRecorder
-                  isRecording={true}
-                  onStart={() => {}}
-                  onStop={() => stopRecording(processInitial)}
-                />
+                <AudioRecorder isRecording={true} onStart={() => {}} onStop={() => stopRecording(processInitial)} />
                 <p className="mic-hint">Tap to stop recording</p>
               </div>
             </div>
           )}
 
-          {/* Initial loading */}
+          {/* Loading */}
           {appState === 'loading' && (
             <div className="loading-view animate-slide-up">
               <Activity size={48} className="spinner-icon" />
@@ -184,12 +253,12 @@ function App() {
             </div>
           )}
 
-          {/* Chat session */}
+          {/* Chat */}
           {isChatActive && (
             <div className="chatting-view animate-slide-up">
               <ChatSession
                 topic={topic}
-                currentQuestion={appState === 'LOADING_REPORT' ? currentQuestion : currentQuestion}
+                currentQuestion={currentQuestion}
                 appState={appState}
                 onStartAnswer={() => startRecording('RECORDING_ANSWER')}
                 onStopAnswer={() => stopRecording(processAnswer)}
@@ -216,7 +285,7 @@ function App() {
             </div>
           )}
 
-          {/* Concept Map full-screen page */}
+          {/* Concept Map */}
           {appState === 'concept_map' && report && (
             <ConceptMapPage
               conceptMap={report.concept_map}
@@ -229,10 +298,23 @@ function App() {
             <SessionHistory
               sessions={sessions}
               onBack={() => setAppState('landing')}
+              onOpenReport={(s) => {
+                setReport(s);
+                setTopic(s.topic);
+                setAppState('report');
+              }}
             />
           )}
         </div>
       </main>
+
+      {/* PWA install prompt */}
+      {showInstallPrompt && (
+        <InstallPrompt
+          onInstall={handleInstall}
+          onDismiss={() => setShowInstallPrompt(false)}
+        />
+      )}
     </div>
   );
 }

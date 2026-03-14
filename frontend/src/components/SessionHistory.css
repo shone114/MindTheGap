@@ -75,3 +75,10 @@
   min-width: 72px;
   text-align: right;
 }
+
+.history-empty {
+  color: var(--text-secondary);
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 0.95rem;
+}
