@@ -1,0 +1,13 @@
+.audio-recorder-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mic-icon {
+  transition: all 0.3s ease;
+}
+
+.record-button:hover .mic-icon {
+  transform: scale(1.1);
+}
