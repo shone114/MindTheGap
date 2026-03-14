@@ -1,34 +1,58 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
 
+/* ─── Cotton Candy Bliss Palette ───────────────────────────────────────── */
+/* Import from src/theme/colors.js for JS components.                       */
+/* These CSS custom properties mirror that file for CSS-only usage.         */
 :root {
-  --bg-deep: #A8DADC;
-  --bg-gradient-1: #F1C0E8;
-  --bg-gradient-2: #F1C0E8;
-  --text-primary: #192C23;
-  --text-secondary: #588157;
-  --accent-primary: #000000;
-  --accent-secondary: #A3B18A;
-  --accent-glow: rgba(58, 90, 64, 0.4);
-  --accent-gold: #A3B18A;
-  --status-strong: #588157;
-  --status-weak: #8B7355;
-  --status-recording: #A94442;
-  --glass-bg: rgba(204, 26, 164, 0.2);
-  --glass-border: rgba(255, 255, 255, 0.5);
-  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
-  --glass-blur: blur(16px);
+  /* 60% — dominant background */
+  --bg-primary:    #BDE0FE;
+
+  /* 30% — cards, panels, surfaces */
+  --color-secondary: #FFC8DD;
+
+  /* 10% — buttons, accent actions */
+  --color-accent:   #FFAFCC;
+
+  /* Support & highlight roles */
+  --color-support:   #A2D2FF;
+  --color-highlight: #CDB4DB;
+
+  /* Text — dark enough for contrast on pastel bg */
+  --text-primary:   #2d1b36;
+  --text-secondary: #6e4f82;
+
+  /* Semantic status */
+  --status-strong:    #4a9b6f;
+  --status-weak:      #c9547a;
+  --status-recording: #c9547a;
+
+  /* Glassmorphism — pink-tinted panels */
+  --glass-bg:     rgba(255, 200, 221, 0.55);
+  --glass-border: rgba(255, 175, 204, 0.45);
+  --glass-shadow: 0 8px 32px 0 rgba(205, 180, 219, 0.28);
+  --glass-blur:   blur(18px);
+
+  /* Glow for animations */
+  --accent-glow: rgba(255, 175, 204, 0.55);
+
+  /* Aliases so old component CSS keeps working */
+  --bg-deep:        var(--bg-primary);
+  --accent-primary: var(--color-accent);
+  --accent-secondary: var(--color-support);
+
+  /* Typography */
   --font-display: 'Outfit', sans-serif;
-  --font-body: 'Inter', sans-serif;
+  --font-body:    'Inter', sans-serif;
 }
 
+/* ─── Reset ────────────────────────────────────────────────────────────── */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
   font-family: var(--font-body);
   color: var(--text-primary);
-  background: var(--bg-deep);
+  background: var(--bg-primary);
   min-height: 100vh;
-  margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -46,24 +70,26 @@ button { font-family: var(--font-body); border: none; cursor: pointer; outline: 
 
 h1, h2, h3, h4, h5, h6 { font-family: var(--font-display); font-weight: 700; line-height: 1.2; }
 
+/* ─── Text gradient ────────────────────────────────────────────────────── */
 .text-gradient {
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  background: linear-gradient(135deg, #c9547a, #7b5ea7);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   color: transparent;
 }
 
+/* ─── Glass panels ─────────────────────────────────────────────────────── */
 .glass-panel {
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
-  border-radius: 24px;
+  border-radius: 20px;
 }
 
-/* Layout */
+/* ─── App layout ───────────────────────────────────────────────────────── */
 .app-container {
   width: 100%;
   height: 100%;
@@ -74,19 +100,20 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-display); font-weight: 700; lin
   overflow: hidden;
 }
 
+/* Ambient blobs */
 .ambient-blob {
   position: absolute;
   border-radius: 50%;
-  filter: blur(100px);
+  filter: blur(90px);
   z-index: 0;
-  opacity: 0.6;
+  opacity: 0.55;
 }
 
 .blob-1 {
-  width: 40vw;
-  height: 40vw;
-  background: var(--bg-gradient-1);
-  top: -10vw;
+  width: 45vw;
+  height: 45vw;
+  background: var(--color-secondary);   /* pink blob */
+  top: -12vw;
   left: -10vw;
   animation: float 20s ease-in-out infinite alternate;
 }
@@ -94,14 +121,14 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-display); font-weight: 700; lin
 .blob-2 {
   width: 50vw;
   height: 50vw;
-  background: var(--bg-gradient-2);
+  background: var(--color-highlight);   /* purple blob */
   bottom: -20vw;
   right: -10vw;
   animation: float 25s ease-in-out infinite alternate-reverse;
 }
 
 @keyframes float {
-  0% { transform: translate(0, 0) rotate(0deg); }
+  0%   { transform: translate(0, 0) rotate(0deg); }
   100% { transform: translate(5vw, 5vw) rotate(15deg); }
 }
 
@@ -123,8 +150,10 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-display); font-weight: 700; lin
 
 @media (max-width: 600px) {
   .main-content { padding: 1rem; padding-top: 5rem; }
+  .main-content--fullscreen { padding: 0.75rem; }
 }
 
+/* ─── App header ───────────────────────────────────────────────────────── */
 .app-header {
   position: absolute;
   top: 2rem;
@@ -137,7 +166,7 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-display); font-weight: 700; lin
 
 @media (max-width: 600px) { .app-header { top: 1rem; left: 1rem; } }
 
-.logo-icon { color: var(--accent-primary); }
+.logo-icon { color: var(--color-accent); }
 .app-header h1 { font-size: 1.25rem; letter-spacing: -0.5px; }
 
 .history-icon-btn {
@@ -155,10 +184,10 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-display); font-weight: 700; lin
   transition: all 0.2s ease;
 }
 
-.history-icon-btn:hover { transform: scale(1.05); background: var(--glass-bg); }
-
+.history-icon-btn:hover { transform: scale(1.05); }
 @media (max-width: 600px) { .history-icon-btn { top: 1rem; right: 1rem; width: 40px; height: 40px; } }
 
+/* ─── State container ──────────────────────────────────────────────────── */
 .state-container {
   flex: 1;
   display: flex;
@@ -175,23 +204,24 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-display); font-weight: 700; lin
   position: relative;
 }
 
-/* Views */
-.title { font-size: 3rem; margin-bottom: 0.5rem; letter-spacing: -1px; }
+/* ─── Typography helpers ────────────────────────────────────────────────── */
+.title    { font-size: 3rem; margin-bottom: 0.5rem; letter-spacing: -1px; }
 .subtitle { font-size: 1.25rem; color: var(--text-secondary); font-weight: 300; margin-bottom: 3rem; line-height: 1.5; }
 
 @media (max-width: 600px) {
-  .title { font-size: 2.25rem; }
+  .title    { font-size: 2.25rem; }
   .subtitle { font-size: 1.1rem; margin-bottom: 2rem; }
 }
 
-.landing-view { display: flex; flex-direction: column; align-items: center; text-align: center; }
-.recording-view, .loading-view { display: flex; flex-direction: column; align-items: center; text-align: center; }
-.loading-view { gap: 2rem; }
+/* ─── Landing view ─────────────────────────────────────────────────────── */
+.landing-view       { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.recording-view,
+.loading-view       { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.loading-view       { gap: 2rem; }
+.mic-container      { display: flex; flex-direction: column; align-items: center; gap: 1.5rem; margin-top: 2rem; }
+.mic-hint           { color: var(--text-secondary); font-size: 0.9rem; letter-spacing: 0.5px; text-transform: uppercase; }
 
-.mic-container { display: flex; flex-direction: column; align-items: center; gap: 1.5rem; margin-top: 2rem; }
-.mic-hint { color: var(--text-secondary); font-size: 0.9rem; letter-spacing: 0.5px; text-transform: uppercase; }
-
-/* Mic button styling (shared by AudioRecorder) */
+/* ─── Record button ────────────────────────────────────────────────────── */
 .record-button {
   width: 120px;
   height: 120px;
@@ -200,7 +230,7 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-display); font-weight: 700; lin
   align-items: center;
   justify-content: center;
   background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
+  border: 2px solid var(--glass-border);
   backdrop-filter: var(--glass-blur);
   color: var(--text-primary);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -208,40 +238,73 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-display); font-weight: 700; lin
 }
 
 .record-button.idle { animation: breathe 3s infinite ease-in-out; }
-.record-button.idle:hover { background: rgba(58, 90, 64, 0.1); transform: scale(1.05); box-shadow: 0 0 20px rgba(58, 90, 64, 0.3); }
-.record-button.recording { background: rgba(239, 68, 68, 0.2); border-color: var(--status-recording); animation: pulse-record 2s infinite; }
+.record-button.idle:hover {
+  background: rgba(255, 175, 204, 0.25);
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(255, 175, 204, 0.4);
+}
+.record-button.recording {
+  background: rgba(201, 84, 122, 0.2);
+  border-color: var(--status-recording);
+  animation: pulse-record 2s infinite;
+}
 
-/* Spinner */
-.spinner-icon { color: var(--accent-primary); animation: spin 2s linear infinite; }
+/* ─── Spinner ──────────────────────────────────────────────────────────── */
+.spinner-icon { color: var(--color-accent); animation: spin 2s linear infinite; }
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-/* Report view */
-.report-view { display: flex; flex-direction: column; align-items: center; width: 100%; }
+/* ─── Report view ──────────────────────────────────────────────────────── */
+.report-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+}
 
+/* loading overlay during report generation */
+.report-loading-overlay {
+  position: absolute;
+  bottom: 2rem;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+/* ─── Reset / New Session button ───────────────────────────────────────── */
 .stop-btn, .reset-btn {
   margin-top: 1.5rem;
-  padding: 1rem 2rem;
-  border-radius: 12px;
+  padding: 0.9rem 2rem;
+  border-radius: 99px;
   color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.8);
-  font-size: 1.1rem;
-  font-weight: 500;
+  background: var(--color-accent);
+  font-size: 1rem;
+  font-weight: 600;
   display: flex;
   align-items: center;
   gap: 10px;
-  border: 1px solid var(--glass-border);
+  border: none;
+  box-shadow: 0 4px 16px rgba(255, 175, 204, 0.4);
 }
 
-.reset-btn:hover { background: rgba(58, 90, 64, 0.1); color: var(--accent-primary); border-color: rgba(58, 90, 64, 0.3); }
+.reset-btn:hover {
+  background: var(--color-secondary);
+  box-shadow: 0 4px 20px rgba(255, 200, 221, 0.5);
+}
 
-/* Error toast */
+/* ─── Error toast ───────────────────────────────────────────────────────── */
 .error-toast {
   position: absolute;
   top: 1rem;
   left: 50%;
   transform: translateX(-50%);
   z-index: 500;
-  background: rgba(185, 28, 28, 0.9);
+  background: rgba(201, 84, 122, 0.9);
   color: white;
   padding: 0.6rem 1.5rem;
   border-radius: 12px;
@@ -249,22 +312,22 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-display); font-weight: 700; lin
   font-weight: 600;
 }
 
-/* Animations */
+/* ─── Animations ────────────────────────────────────────────────────────── */
 @keyframes breathe {
-  0% { box-shadow: 0 0 10px var(--accent-glow); transform: scale(1); }
-  50% { box-shadow: 0 0 30px var(--accent-glow); transform: scale(1.05); }
+  0%   { box-shadow: 0 0 10px var(--accent-glow); transform: scale(1); }
+  50%  { box-shadow: 0 0 30px var(--accent-glow); transform: scale(1.05); }
   100% { box-shadow: 0 0 10px var(--accent-glow); transform: scale(1); }
 }
 
 @keyframes pulse-record {
-  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-  70% { box-shadow: 0 0 0 30px rgba(239, 68, 68, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+  0%   { box-shadow: 0 0 0 0 rgba(201, 84, 122, 0.7); }
+  70%  { box-shadow: 0 0 0 30px rgba(201, 84, 122, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(201, 84, 122, 0); }
 }
 
 @keyframes slideUpFade {
   from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .animate-slide-up { animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }

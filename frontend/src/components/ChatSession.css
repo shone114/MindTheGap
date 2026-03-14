@@ -10,7 +10,6 @@
   gap: 0.75rem;
 }
 
-/* ── Top Row ─────────────────────────────────────── */
 .fc-top-row {
   width: 100%;
   display: flex;
@@ -18,7 +17,6 @@
   flex-shrink: 0;
 }
 
-/* ── Topic Label (own line, wraps naturally) ──────── */
 .topic-label-row {
   width: 100%;
   flex-shrink: 0;
@@ -26,7 +24,7 @@
 }
 
 .topic-label {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -36,7 +34,7 @@
   line-height: 1.4;
 }
 
-/* ── Back Button ─────────────────────────────────── */
+/* Back button */
 .fc-back-btn {
   padding: 0.45rem 0.9rem;
   display: flex;
@@ -45,15 +43,12 @@
   font-size: 0.85rem;
   color: var(--text-primary);
   border-radius: 99px;
-  border: 1px solid var(--glass-border);
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
   transition: all 0.2s ease;
 }
 
-.fc-back-btn:hover { background: rgba(0,0,0,0.05); }
+.fc-back-btn:hover { background: rgba(255, 175, 204, 0.25); }
 
-/* ── Question Flashcard ──────────────────────────── */
+/* Question card — uses secondary (30%) color */
 .question-card {
   flex: 1;
   width: 100%;
@@ -61,7 +56,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  /* perspective for 3-D flip */
+  background: rgba(255, 200, 221, 0.6) !important;
+  border-color: rgba(255, 175, 204, 0.5) !important;
   perspective: 800px;
   overflow: hidden;
 }
@@ -75,19 +71,10 @@
   text-align: center;
 }
 
-/* ── Flashcard Flip Animations ───────────────────── */
-/* idle — no animation */
+/* Flashcard flip animations */
 .flip-idle {}
-
-/* exit — card flips away */
-.flip-exit {
-  animation: cardFlipOut 0.35s ease-in forwards;
-}
-
-/* enter — new card flips in */
-.flip-enter {
-  animation: cardFlipIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
+.flip-exit { animation: cardFlipOut 0.35s ease-in forwards; }
+.flip-enter { animation: cardFlipIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
 @keyframes cardFlipOut {
   0%   { opacity: 1; transform: rotateY(0deg) scale(1); }
@@ -101,33 +88,36 @@
   100% { opacity: 1; transform: rotateY(0deg) scale(1); }
 }
 
-/* ── Bottom Controls ─────────────────────────────── */
+/* Bottom controls */
 .flashcard-controls {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.85rem;
+  gap: 1.5rem;
   width: 100%;
   flex-shrink: 0;
+  padding-bottom: 0.5rem;
 }
 
 .end-session-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 8px;
   font-size: 0.95rem;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-primary);
-  padding: 0.6rem 1.5rem;
+  padding: 0.8rem 2.5rem;
   border-radius: 99px;
-  border: 1px solid var(--glass-border);
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
+  background: var(--color-accent);
+  border: none;
+  box-shadow: 0 4px 14px rgba(255, 175, 204, 0.35);
   transition: all 0.2s ease;
+  width: 80%;
+  max-width: 280px;
 }
 
 .end-session-btn:hover {
-  background: rgba(239, 68, 68, 0.08);
-  border-color: rgba(239, 68, 68, 0.3);
-  color: #b91c1c;
+  background: var(--color-secondary);
+  box-shadow: 0 4px 18px rgba(255, 200, 221, 0.5);
 }
