@@ -8,7 +8,7 @@ import ConceptMapPage from './components/ConceptMapPage';
 import SessionHistory from './components/SessionHistory';
 import './App.css';
 
-const API_URL = "http://127.0.0.1:8000/api/v1";
+const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api/v1";
 
 function App() {
   const [appState, setAppState] = useState('landing');
